@@ -68,9 +68,9 @@ jobs:
                   environment:
                       NODE_OPTIONS: --max_old_space_size=8192
 
-     scan-frontend:
+    scan-frontend:
         docker:
-            - image: circleci/node:lts
+            - image: circleci/node:13.8.0
         steps:
             - checkout
             - restore_cache:
