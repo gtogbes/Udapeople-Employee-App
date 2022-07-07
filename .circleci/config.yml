@@ -137,7 +137,7 @@ jobs:
             - run:
                   name: Add backend ip to ansible inventory
                   command: |
-                      BACKEND_AWS_PUBLIC_IP=$(aws ec2 describe-instances \
+                        aws ec2 describe-instances \
                         --filters "Name=tag:project,Values=udapeople" \
                         --query 'Reservations[*].Instances[*].PublicIpAddress' \
                         --output text >> .circleci/ansible/inventory.txt
