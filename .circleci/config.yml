@@ -113,7 +113,7 @@ jobs:
                     npm audit fix --audit-level=critical --force
                     npm audit fix  --force
                     npm audit --audit-level=critical 
-     deploy-infrastructure:
+    deploy-infrastructure:
         docker:
             - image: python:3.7-alpine
         steps:
@@ -123,7 +123,7 @@ jobs:
                   command: |
                       apk add --update tar gzip curl
                       pip install awscli
-                      
+
                   name: Ensure backend infrastructure exists
                   command: |
                       aws cloudformation deploy \
