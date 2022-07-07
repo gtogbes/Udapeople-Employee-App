@@ -123,7 +123,7 @@ jobs:
                   command: |
                       apk add --update tar gzip curl
                       pip install awscli
-                      
+            - run:     
                   name: Ensure backend infrastructure exists
                   command: |
                       aws cloudformation deploy \
