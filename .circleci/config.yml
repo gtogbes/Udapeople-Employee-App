@@ -76,7 +76,7 @@ jobs:
             - restore_cache:
                   keys: [frontend-build]
             - run:
-                  name: Install NPM dependencies
+                  name: Install dependencies and scan frontend
                   command: |
                     cd frontend 
                     npm install
