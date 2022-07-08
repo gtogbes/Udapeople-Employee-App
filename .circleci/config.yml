@@ -310,22 +310,6 @@ jobs:
                       pip install awscli
             - attach_workspace:
                   at: ~/
-
-            - run:
-                  name: Get backend url
-                  command: |
-                      export BACKEND_IP=$(aws ec2 describe-instances \
-                         --query 'Reservations[*].Instances[*].PublicIpAddress' \
-                         --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID}" \
-                         --output text)
-                      export API_URL="http://${BACKEND_IP}:3030"
-                      echo "${API_URL}"
-                      if curl "${API_URL}/api/status" | grep "ok"
-                      then
-                          return 0
-                      else
-                          return 1
-                      fi
             - run:
                   name: Smoke Test frontend app
                   command: |
@@ -338,6 +322,22 @@ jobs:
                       else
                           return 1
                       fi
+            - run:
+                  name: Get backend url
+                  command: |
+                      export BACKEND_IP=$(aws ec2 describe-instances \
+                         --query 'Reservations[*].Instances[*].PublicIpAddress' \
+                         --filters "Name=tags:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID}" \
+                         --output text)
+                      export API_URL="http://${BACKEND_IP}:3030"
+                      echo "${API_URL}"
+                      if curl "${API_URL}/api/status" | grep "ok"
+                      then
+                          return 0
+                      else
+                          return 1
+                      fi
+            
             
             - destroy-environment:
                   workflow_id: "${CIRCLE_WORKFLOW_ID}"
