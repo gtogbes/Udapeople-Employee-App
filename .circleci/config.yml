@@ -160,7 +160,7 @@ jobs:
         steps:
             - checkout
             - run:
-                  name: Install dependencies
+                  name: Install config dependencies
                   command: |
                       apk add --update tar gzip curl nodejs npm ansible zip
                       pip install awscli
