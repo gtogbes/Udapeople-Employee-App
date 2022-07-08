@@ -314,9 +314,8 @@ jobs:
             - run:
                   name: Get backend url
                   command: |
-                      export BACKEND_IP=$(
-                         aws ec2 describe-instances \
-                         --query 'Reservation[*].Instances[*].PublicIpAddress' \
+                      export BACKEND_IP=$(aws ec2 describe-instances \
+                         --query 'Reservations[*].Instances[*].PublicIpAddress' \
                          --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID}" \
                          --output text)
                       export API_URL="http://${BACKEND_IP}:3030"
@@ -345,6 +344,20 @@ jobs:
             - revert-migrations:
                   workflow_id: "${CIRCLE_WORKFLOW_ID}"
 
+    cloudfront-update:
+        docker:
+            - image: python:3.7-alpine
+        steps:
+            - checkout
+            - run:
+                  name: Install dependencies
+                  command: |
+                      apk add --update curl
+                      pip install awscli
+            - run:
+                  name: update cloudfront distribution
+                  command: |
+                      
 
                       
 workflows:
