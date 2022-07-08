@@ -172,6 +172,7 @@ jobs:
                       - project/.circleci/ansible/inventory.txt
             - destroy-environment:
                   workflow_id: ${CIRCLE_WORKFLOW_ID}
+
     configure-infrastructure:
         docker:
             - image: python:3.7-alpine
@@ -258,7 +259,8 @@ jobs:
                        aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID} --recursive
             - destroy-environment:
                   workflow_id: "${CIRCLE_WORKFLOW_ID}"
-            - revert-migrations
+            - revert-migrations:
+                  workflow_id: "${CIRCLE_WORKFLOW_ID}"
 
     deploy-backend:
         docker:
@@ -293,7 +295,8 @@ jobs:
                       ansible-playbook -i inventory.txt deploy-backend.yml
             - destroy-environment:
                   workflow_id: "${CIRCLE_WORKFLOW_ID}"
-            - revert-migrations      
+            - revert-migrations:
+                  workflow_id: "${CIRCLE_WORKFLOW_ID}"      
     smoke-test:
         docker:
             - image: python:3.7-alpine
@@ -333,7 +336,9 @@ jobs:
             
             - destroy-environment:
                   workflow_id: "${CIRCLE_WORKFLOW_ID}"
-            - revert-migrations
+            - revert-migrations:
+                  workflow_id: "${CIRCLE_WORKFLOW_ID}"
+
 
                       
 workflows:
