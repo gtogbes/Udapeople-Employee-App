@@ -174,7 +174,7 @@ jobs:
                   command: |
                       cd .circleci/ansible
                       cat inventory.txt
-                      ansible-playbook -vvvv -i inventory.txt configure-server.yml
+                      ansible-playbook -i inventory.txt configure-server.yml
             - destroy-environment:
                   workflow_id: ${CIRCLE_WORKFLOW_ID}
 
@@ -199,3 +199,6 @@ workflows:
                 filters:
                   branches:
                     only: [master]
+    
+            - configure-infrastructure:
+                  requires: [deploy-infrastructure]

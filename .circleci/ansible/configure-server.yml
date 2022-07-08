@@ -36,5 +36,5 @@
  
     
 
-  rroles:
+  roles:
     - configure-server
