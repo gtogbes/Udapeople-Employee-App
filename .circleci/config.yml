@@ -312,6 +312,16 @@ jobs:
                   at: ~/
 
             - run:
+                  name: Get backend url
+                  command: |
+                       export BACKEND_IP=$(
+                         aws ec2 describe-instances \
+                         --query 'Reservation[*].Instances[*].PublicIpAddress' \
+                         --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID}" \
+                         --output text)
+                       echo "This is the Backend IP ${BACKEND_IP}"
+      
+            - run:
                   name: Smoke Test backend app
                   command: |
                       export API_URL="http://${BACKEND_IP}:3030"
