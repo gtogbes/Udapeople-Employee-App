@@ -318,7 +318,7 @@ jobs:
                       if curl -s ${URL} | grep "Welcome"
                       then
                         # Change this to 0 after the job fails
-                          return 1
+                          return 0
                       else
                           return 1
                       fi
@@ -326,9 +326,9 @@ jobs:
                   name: Get backend url
                   command: |
                       export BACKEND_IP=$(aws ec2 describe-instances \
-                         --query 'Reservations[*].Instances[*].PublicIpAddress' \
-                         --filters "Name=tags:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID}" \
-                         --output text)
+                        --filters "Name=tag:project,Values=udapeople" \
+                        --query 'Reservations[*].Instances[*].PublicIpAddress' \
+                        --output text)
                       export API_URL="http://${BACKEND_IP}:3030"
                       echo "${API_URL}"
                       if curl "${API_URL}/api/status" | grep "ok"
