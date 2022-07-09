@@ -53,10 +53,6 @@ jobs:
             - save_cache:
                   paths: [frontend/node_modules]
                   key: frontend-build
-            - slack/notify:
-                  channel: $SLACK_DEFAULT_CHANNEL
-                  event: fail
-                  template: basic_fail_1
 
     build-backend:
         docker:
@@ -78,10 +74,6 @@ jobs:
                   root: ~/
                   paths:
                       - project/backend/dist
-            - slack/notify:
-                  channel: $SLACK_DEFAULT_CHANNEL
-                  event: fail
-                  template: basic_fail_1
 
     test-frontend:
         docker:
@@ -96,10 +88,6 @@ jobs:
                     cd frontend 
                     npm install
                     npm run test 
-            - slack/notify:
-                  channel: $SLACK_DEFAULT_CHANNEL
-                  event: fail
-                  template: basic_fail_1
 
     test-backend:
         docker:
@@ -116,10 +104,6 @@ jobs:
                     npm run test 
                   environment:
                       NODE_OPTIONS: --max_old_space_size=8192
-            - slack/notify:
-                  channel: $SLACK_DEFAULT_CHANNEL
-                  event: fail
-                  template: basic_fail_1
 
     scan-frontend:
         docker:
@@ -151,6 +135,7 @@ jobs:
                     npm audit fix --audit-level=critical --force
                     npm audit fix  --force
                     npm audit --audit-level=critical 
+                    
     deploy-infrastructure:
         docker:
             - image: python:3.7-alpine
