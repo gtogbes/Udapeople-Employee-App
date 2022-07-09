@@ -311,10 +311,6 @@ jobs:
                   name: Deploy backend
                   command: |
                       cd backend/dist
-                      npm i
-                      npm run build
-                      npm audit fix --audit-level=critical --force
-                      npm audit fix --force
                       cp ../package* .
                       zip -rq dist.zip *
                       mkdir -p ~/project/.circleci/ansible/roles/deploy-backend/files
