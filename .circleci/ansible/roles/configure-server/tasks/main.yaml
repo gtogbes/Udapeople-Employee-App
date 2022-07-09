@@ -1,34 +1,26 @@
 ---
-- name: "Update apt packages"
+- name: "Update packages"
   become: true
   apt:
-    update_cache: true
+    update_cache: yes
 
 - name: "Upgrade packages"
   become: true
   apt:
-    upgrade: true
+    upgrade: yes
 
-- name: "Remove packages that are no longer used"
+- name: "install nodejs and npm dependencies"
   become: true
   apt:
-    autoremove: true
-
-- name: "Install dependencies"
-  become: true
-  apt:
-    name: ["unzip", "curl", "git"]
+    name: ["nodejs", "npm"]
     state: latest
-    update_cache: true
+    update_cache: yes
 
-- name: "Install latest LTS Node.js and NPM"
+# Install pm2
+- name: "install pm2"
   become: true
-  shell: |
-    curl -sL https://deb.nodesource.com/setup_lts.x | sudo -E bash - && sudo apt-get install -y nodejs
-    node --version
-    npm --version
-
-- name: "Install PM2"
-  become: true
-  shell: |
-    npm i -g pm2
+  npm:
+    name: pm2
+    global: yes
+    production: yes
+    state: present

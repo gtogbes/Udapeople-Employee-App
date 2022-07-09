@@ -25,15 +25,16 @@ commands:
                   name: Revert migrations
                   when: on_fail
                   command: |
-                      SUCCESS=$(curl --insecure  https://kvdb.io/BCkQQGfj9UgTpMpTV3sTdY/migration-<< parameters.workflow_id >>)
+                      SUCCESS=$(curl --insecure  https://kvdb.io/BCkQQGfj9UgTpMpTV3sTdY/migration_<< parameters.workflow_id >>)
                         # Logic for reverting the database state
                       if (( $SUCCESS == 1 ));
                       then
                           cd ~/project/backend
                           npm install
-                          npm run migration:revert
-                      fi  
-
+                          npm run migration:revert 
+                      else
+                          echo "zero migration."
+                      fi
 
 jobs:
     build-frontend:
@@ -52,6 +53,10 @@ jobs:
             - save_cache:
                   paths: [frontend/node_modules]
                   key: frontend-build
+            - slack/notify:
+                  channel: $SLACK_DEFAULT_CHANNEL
+                  event: fail
+                  template: basic_fail_1
 
     build-backend:
         docker:
@@ -73,6 +78,11 @@ jobs:
                   root: ~/
                   paths:
                       - project/backend/dist
+            - slack/notify:
+                  channel: $SLACK_DEFAULT_CHANNEL
+                  event: fail
+                  template: basic_fail_1
+
     test-frontend:
         docker:
             - image: circleci/node:13.8.0
@@ -86,7 +96,10 @@ jobs:
                     cd frontend 
                     npm install
                     npm run test 
-          
+            - slack/notify:
+                  channel: $SLACK_DEFAULT_CHANNEL
+                  event: fail
+                  template: basic_fail_1
 
     test-backend:
         docker:
@@ -103,6 +116,10 @@ jobs:
                     npm run test 
                   environment:
                       NODE_OPTIONS: --max_old_space_size=8192
+            - slack/notify:
+                  channel: $SLACK_DEFAULT_CHANNEL
+                  event: fail
+                  template: basic_fail_1
 
     scan-frontend:
         docker:
@@ -273,30 +290,55 @@ jobs:
             ANSIBLE_HOST_KEY_CHECKING: "no"
         steps:
             - checkout
-            - run:
-                  name: Install dependencies
-                  command: |
-                      apk add --update tar gzip curl nodejs npm ansible zip
-                      pip install awscli
-            - attach_workspace:
-                  at: ~/
             - add_ssh_keys:
                   fingerprints:
-                      ["5d:68:50:50:19:a7:02:89:b3:81:26:79:bc:09:d4:a0"]     
+                      ["5d:68:50:50:19:a7:02:89:b3:81:26:79:bc:09:d4:a0"] 
+            - attach_workspace:
+                  at: ~/
+
             - run:
-                  name: Package backend
+                  name: Install zip
                   command: |
-                      cd backend/dist
-                      cp ../package* .
-                      zip -rq dist.zip *
-                      mkdir -p ~/project/.circleci/ansible/roles/deploy-backend/files
-                      mv dist.zip ~/project/.circleci/ansible/roles/deploy-backend/files/
-            
+                      apk add --update zip unzip
+                # install curl
+            - run:
+                  name: Install curl
+                   command: |
+                       apk add --update curl
+            - run:
+                  name: Install ansible
+                  working_directory: ./.circleci/ansible
+                  command: |
+                       apk add --update ansible 
+            - run:
+                  name: Install aws cli
+                  command: |
+                       pip install awscli
+            - run:
+                  name: Install nodejs
+                  command: |
+                       apk add --update nodejs
+            - run:
+                  name: Install npm
+                  command: |
+                       apk add --update npm openssh rsync
             - run:
                   name: Deploy backend
                   command: |
-                      cd .circleci/ansible
-                      ansible-playbook -i inventory.txt deploy-backend.yml
+                       mkdir -p .circleci/ansible/roles/deploy/files
+                       cd backend
+                       npm i
+                       npm run build
+                       cp ~/project/backend/package.json ~/project/backend/dist
+                     # Zip the directory
+                       cd ~/project/backend/dist
+                       zip -rq dist.zip *
+                       mv dist.zip ~/project/.circleci/ansible/roles/deploy/files/
+                       cd ~/project/.circleci/ansible
+                       echo "Contents of the inventory.txt file is ......."
+                       cat inventory.txt
+                       ansible-playbook -i inventory.txt deploy-backend.yml
+
             - destroy-environment:
                   workflow_id: "${CIRCLE_WORKFLOW_ID}"
             - revert-migrations:
@@ -342,10 +384,10 @@ jobs:
                       fi
             
             
-            #- destroy-environment:
-             #     workflow_id: "${CIRCLE_WORKFLOW_ID}"
-            #- revert-migrations:
-                 # workflow_id: "${CIRCLE_WORKFLOW_ID}"
+            - destroy-environment:
+                  workflow_id: "${CIRCLE_WORKFLOW_ID}"
+            - revert-migrations:
+                  workflow_id: "${CIRCLE_WORKFLOW_ID}"
 
     cloudfront-update:
         docker:
