@@ -135,7 +135,7 @@ jobs:
                     npm audit fix --audit-level=critical --force
                     npm audit fix  --force
                     npm audit --audit-level=critical 
-                    
+
     deploy-infrastructure:
         docker:
             - image: python:3.7-alpine
@@ -313,6 +313,7 @@ jobs:
                       cd backend/dist
                       npm i
                       npm run build
+                      npm audit fix --force
                       cp ../package* .
                       zip -rq dist.zip *
                       mkdir -p ~/project/.circleci/ansible/roles/deploy-backend/files
