@@ -303,8 +303,8 @@ jobs:
                 # install curl
             - run:
                   name: Install curl
-                   command: |
-                       apk add --update curl
+                  command: |
+                        apk add --update curl
             - run:
                   name: Install ansible
                   working_directory: ./.circleci/ansible
