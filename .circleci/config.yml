@@ -289,6 +289,7 @@ jobs:
                       npm install --silent
                       npm audit fix --audit-level=critical --force
                       npm audit fix  --force
+                      npm audit fix
                       npm run build 
                       cd ..
                       tar -C backend -czvf artefact.tar.gz
