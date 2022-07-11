@@ -1,36 +1,37 @@
 ---
-- name: Create directory
+- name: "Creates backend app directory"
   file:
-    path: /home/ubuntu/app-dir
-    state: directory
+      path: ~/backend-app
+      state: directory
 
-- name: Upload artifact
+- name: "Copy compiled backend app"
   copy:
-    src: ~/project/.circleci/ansible/roles/deploy/files/dist.zip
-    dest: /home/ubuntu/app-dir
+      src: dist.zip
+      dest: "~/backend-app/dist.zip"
 
-- name: Install unzip
-  become: true
-  apt:
-    name: unzip
-    state: present
-
-# Extract the zipped artifact to the EC2 instance, and then start the app.
-- name: extract artifact
+- name: "Unzip backend files"
   shell: |
-    cd /home/ubuntu/udaappdir
-    unzip /home/ubuntu/app-dir/dist.zip
-    npm install --force
-    pm2 stop default
-    pm2 start -f ./main.js
-  environment:
-    ENVIRONMENT: production
-    TYPEORM_CONNECTION: "{{ lookup('env','TYPEORM_CONNECTION') }}"
-    TYPEORM_MIGRATIONS_DIR: /home/ubuntu/udaappdir/migrations
-    TYPEORM_MIGRATIONS: /home/ubuntu/udaappdir/migrations/*.js
-    TYPEORM_ENTITIES: /home/ubuntu/udaappdir/modules/domain/**/*.entity.js
-    TYPEORM_HOST: "{{ lookup('env','TYPEORM_HOST') }}"
-    TYPEORM_PORT: "{{ lookup('env','TYPEORM_PORT') }}"
-    TYPEORM_USERNAME: "{{ lookup('env','TYPEORM_USERNAME') }}"
-    TYPEORM_PASSWORD: "{{ lookup('env','TYPEORM_PASSWORD') }}"
-    TYPEORM_DATABASE: "{{ lookup('env','TYPEORM_DATABASE') }}"
+      cd ~/backend-app
+      unzip dist.zip
+      rm -rf dist.zip
+
+- name: "Install dependencies for project"
+  shell: |
+      cd ~/backend-app
+      npm install --force
+
+- name: "Executing node"
+  shell: |
+      export
+      cd ~/backend-app
+      pm2 start main.js --update-env
+  register: execute_node
+
+- name: print message
+  debug:
+      msg: "{{ execute_node.stdout_lines }}"
+
+- name: "Configure pm2 to start as service"
+  become: true
+  shell: |
+      env PATH=$PATH:/usr/local/bin pm2 startup systemd -u ubuntu --hp /home/ubuntu
