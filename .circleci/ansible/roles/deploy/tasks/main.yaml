@@ -1,50 +1,36 @@
 ---
+- name: Create directory
+  file:
+    path: /home/ubuntu/app-dir
+    state: directory
 
-- name: Extract files
-  become: true
-  unarchive:
-    src: files/artifact.tar.gz
-    dest: .
+- name: Upload artifact
+  copy:
+    src: ~/project/.circleci/ansible/roles/deploy/files/dist.zips
+    dest: /home/ubuntu/app-dir
 
-- name: Start the web server
+- name: Install unzip
   become: true
+  apt:
+    name: unzip
+    state: present
+
+# Extract the zipped artifact to the EC2 instance, and then start the app.
+- name: extract artifact
   shell: |
+    cd /home/ubuntu/udaappdir
+    unzip /home/ubuntu/app-dir/dist.zip
+    npm install --force
     pm2 stop default
-    pm2 start npm -- start
-
-# ---
-# - name: Create directory
-#   file:
-#     path: /home/ubuntu/app-dir
-#     state: directory
-
-# - name: Upload artifact
-#   copy:
-#     src: ~/project/.circleci/ansible/roles/deploy/files/dist.zips
-#     dest: /home/ubuntu/app-dir
-
-# - name: Install unzip
-#   become: true
-#   apt:
-#     name: unzip
-#     state: present
-
-# # Extract the zipped artifact to the EC2 instance, and then start the app.
-# - name: extract artifact
-#   shell: |
-#     cd /home/ubuntu/udaappdir
-#     unzip /home/ubuntu/app-dir/dist.zip
-#     npm install --force
-#     pm2 stop default
-#     pm2 start -f ./main.js
-#   environment:
-#     ENVIRONMENT: production
-#     TYPEORM_CONNECTION: "{{ lookup('env','TYPEORM_CONNECTION') }}"
-#     TYPEORM_MIGRATIONS_DIR: /home/ubuntu/udaappdir/migrations
-#     TYPEORM_MIGRATIONS: /home/ubuntu/udaappdir/migrations/*.js
-#     TYPEORM_ENTITIES: /home/ubuntu/udaappdir/modules/domain/**/*.entity.js
-#     TYPEORM_HOST: "{{ lookup('env','TYPEORM_HOST') }}"
-#     TYPEORM_PORT: "{{ lookup('env','TYPEORM_PORT') }}"
-#     TYPEORM_USERNAME: "{{ lookup('env','TYPEORM_USERNAME') }}"
-#     TYPEORM_PASSWORD: "{{ lookup('env','TYPEORM_PASSWORD') }}"
-#     TYPEORM_DATABASE: "{{ lookup('env','TYPEORM_DATABASE') }}"
+    pm2 start -f ./main.js
+  environment:
+    ENVIRONMENT: production
+    TYPEORM_CONNECTION: "{{ lookup('env','TYPEORM_CONNECTION') }}"
+    TYPEORM_MIGRATIONS_DIR: /home/ubuntu/udaappdir/migrations
+    TYPEORM_MIGRATIONS: /home/ubuntu/udaappdir/migrations/*.js
+    TYPEORM_ENTITIES: /home/ubuntu/udaappdir/modules/domain/**/*.entity.js
+    TYPEORM_HOST: "{{ lookup('env','TYPEORM_HOST') }}"
+    TYPEORM_PORT: "{{ lookup('env','TYPEORM_PORT') }}"
+    TYPEORM_USERNAME: "{{ lookup('env','TYPEORM_USERNAME') }}"
+    TYPEORM_PASSWORD: "{{ lookup('env','TYPEORM_PASSWORD') }}"
+    TYPEORM_DATABASE: "{{ lookup('env','TYPEORM_DATABASE') }}"
