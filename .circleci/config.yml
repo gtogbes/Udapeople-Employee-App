@@ -288,7 +288,7 @@ jobs:
                       cd backend/dist
                       cp ../package* .
                       zip -rq dist.zip *
-                      mkdir -p ~/project/.circleci/ansible/roles/deploy-backend/files
+                      mkdir -p ~/project/.circleci/ansible/roles/deploy/files
                       mv dist.zip ~/project/.circleci/ansible/roles/deploy/files/
             - add_ssh_keys:
                   fingerprints:
