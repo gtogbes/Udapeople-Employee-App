@@ -289,16 +289,30 @@ jobs:
             - run:
                   name: Package backend and Deploy Backend
                   command: |
+                      echo ENVIRONMENT: production  > "backend/.env"
+                      echo TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION') }}"
+                      echo TYPEORM_MIGRATIONS_DIR: "./migrations"
+                      echo TYPEORM_MIGRATIONS: "./migrations/*.js"
+                      echo TYPEORM_ENTITIES: "./modules/domain/**/*.entity.js"
+                      echo TYPEORM_HOST: "{{ lookup('env', 'TYPEORM_HOST') }}"
+                      echo TYPEORM_PORT: "{{ lookup('env', 'TYPEORM_PORT') }}"
+                      echo TYPEORM_USERNAME: "{{ lookup('env', 'TYPEORM_USERNAME') }}"
+                      echo TYPEORM_PASSWORD: "{{ lookup('env', 'TYPEORM_PASSWORD') }}"
+                      echo TYPEORM_DATABASE: "{{ lookup('env', 'TYPEORM_DATABASE') }}"
                       cd backend
                       npm i
                       npm audit fix
                       npm run build 
                       cd ..
-                      cd ..
-                      cat ./.circleci/ansible/inventory.txt
+                      tar -C backend -czvf artifact.tar.gz .
+                      mkdir -p ~/project/.circleci/ansible/roles/deploy/files/
+                      mv artifact.tar.gz .circleci/ansible/roles/deploy/files/artifact.tar.gz
+                      cd .circleci/ansible
+                      echo "contents of the inventory.txt file is ------$(tail -i inventory.txt)"
+                      cat inventory.txt
                       export ANSIBLE_HOST_KEY_CHECKING=False
-                      ansible-playbook -i ./.circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml --ssh-common-args='-o StrictHostKeyChecking=no'
-           
+                      ansible-playbook -i inventory.txt deploy-backend.yml
+                     
            # - destroy-environment:
                 #  workflow_id: "${CIRCLE_WORKFLOW_ID}"
            # - revert-migrations:
