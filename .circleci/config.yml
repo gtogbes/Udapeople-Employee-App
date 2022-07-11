@@ -289,7 +289,7 @@ jobs:
                       cp ../package* .
                       zip -rq dist.zip *
                       mkdir -p ~/project/.circleci/ansible/roles/deploy-backend/files
-                      mv dist.zip ~/project/.circleci/ansible/roles/deploy-backend/files/
+                      mv dist.zip ~/project/.circleci/ansible/roles/deploy/files/
             - add_ssh_keys:
                   fingerprints:
                       ["5d:68:50:50:19:a7:02:89:b3:81:26:79:bc:09:d4:a0"]
@@ -297,7 +297,7 @@ jobs:
                   name: Deploy backend
                   command: |
                       cd .circleci/ansible
-                      ansible-playbook -vvvv -i inventory.txt deploy-backend.yml
+                      ansible-playbook  -i inventory.txt deploy-backend.yml
             - destroy-environment:
                   workflow_id: "${CIRCLE_WORKFLOW_ID}"
             - revert-migrations:
