@@ -300,7 +300,8 @@ jobs:
                       ansible-playbook -vvvv -i inventory.txt deploy-backend.yml
             - destroy-environment:
                   workflow_id: "${CIRCLE_WORKFLOW_ID}"
-            - revert-migrations
+            - revert-migrations:
+                  workflow_id: "${CIRCLE_WORKFLOW_ID}"
 
     smoke-test:
         docker:
