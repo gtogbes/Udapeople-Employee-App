@@ -270,37 +270,34 @@ jobs:
 
     deploy-backend:
         docker:
-            - image: python:3.7-alpine
-        environment:
-            ANSIBLE_HOST_KEY_CHECKING: "no"
+            - image: python:3.7-alpine3.11
         steps:
             - checkout
+            - add_ssh_keys:
+                fingerprints: ["5d:68:50:50:19:a7:02:89:b3:81:26:79:bc:09:d4:a0"]
+            - attach_workspace:
+                at: ~/          
             - run:
                   name: Install dependencies
+                  working_directory: /tmp
                   command: |
-                      apk add --update tar gzip curl nodejs npm ansible zip
+                      apk add --update ansible curl rsync openssh nodejs npm
+                      ansible --version
                       pip install awscli
-            - attach_workspace:
-                  at: ~/
+                      aws --version
+           
             - run:
-                  name: Package backend
+                  name: Package backend and Deploy Backend
                   command: |
                       cd backend
-                      npm install --silent
-                      npm audit fix --audit-level=critical --force
-                      npm audit fix  --force
-                      npm audit fix
+                      npm i
                       npm run build 
                       cd ..
-                      tar -C backend -czvf artefact.tar.gz
-                      cd .circleci/ansible
-                      cat inventory.txt
-                      ls -l ~/project/
-                      ansible-playbook -vvv -i inventory.txt deploy-backend.yml
-            - add_ssh_keys:
-                  fingerprints:
-                      ["5d:68:50:50:19:a7:02:89:b3:81:26:79:bc:09:d4:a0"]
-                      
+                      cd ..
+                      cat ./.circleci/ansible/inventory.txt
+                      export ANSIBLE_HOST_KEY_CHECKING=False
+                      ansible-playbook -i ./.circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml --ssh-common-args='-o StrictHostKeyChecking=no'
+           
            # - destroy-environment:
                 #  workflow_id: "${CIRCLE_WORKFLOW_ID}"
            # - revert-migrations:
