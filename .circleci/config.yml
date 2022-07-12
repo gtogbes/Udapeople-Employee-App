@@ -311,7 +311,7 @@ jobs:
                       echo "contents of the inventory.txt file is ------$(tail -i inventory.txt)"
                       cat inventory.txt
                       export ANSIBLE_HOST_KEY_CHECKING=False
-                      ansible-playbook -i inventory.txt deploy-backend.yml
+                      ansible-playbook -vvv -i inventory.txt deploy-backend.yml
                      
            # - destroy-environment:
                 #  workflow_id: "${CIRCLE_WORKFLOW_ID}"

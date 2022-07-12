@@ -6,7 +6,7 @@
 
 - name: Upload artifact
   copy:
-    src: ~/project/.circleci/ansible/roles/deploy/files/dist.zips
+    src: ~/project/.circleci/ansible/roles/deploy/files/artifact.tar.gz
     dest: /home/ubuntu/app-dir
 
 - name: Install unzip
@@ -19,7 +19,7 @@
 - name: extract artifact
   shell: |
     cd /home/ubuntu/udaappdir
-    unzip /home/ubuntu/app-dir/dist.zip
+    unzip /home/ubuntu/app-dir/artifact.tar.gz
     npm install --force
     pm2 stop default
     pm2 start -f ./main.js
