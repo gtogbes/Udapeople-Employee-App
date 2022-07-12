@@ -1,36 +1,43 @@
 ---
-- name: Create directory
-  file:
-    path: /home/ubuntu/app-dir
-    state: directory
-
-- name: Upload artifact
-  copy:
-    src: ~/project/.circleci/ansible/roles/deploy/files/artifact.tar.gz
-    dest: /home/ubuntu/app-dir
-
-- name: Install unzip
+- name: "update apt packages."
   become: true
   apt:
-    name: unzip
-    state: present
+    update_cache: yes
 
-# Extract the zipped artifact to the EC2 instance, and then start the app.
+- name: "upgrade packages"
+  become: true
+  apt:
+    upgrade: yes
+
+- name: remove unneeded deps
+  become: true
+  apt:
+    autoremove: yes
+
+- name: install deps
+  become: true
+  apt:
+    name: ['nodejs', 'npm']
+    state: latest
+    update_cache: yes
+
+- name: install pm2
+  become: true
+  npm:
+    name: pm2
+    global: yes
+    state: latest
+    production: yes
+
 - name: extract artifact
+  become: true
+  unarchive:
+    src: files/artifact.tar.gz
+    dest: .
+
+- name: start app
+  become: true
   shell: |
-    cd /home/ubuntu/udaappdir
-    unzip /home/ubuntu/app-dir/artifact.tar.gz
-    npm install --force
+    npm install
     pm2 stop default
-    pm2 start -f ./main.js
-  environment:
-    ENVIRONMENT: production
-    TYPEORM_CONNECTION: "{{ lookup('env','TYPEORM_CONNECTION') }}"
-    TYPEORM_MIGRATIONS_DIR: /home/ubuntu/udaappdir/migrations
-    TYPEORM_MIGRATIONS: /home/ubuntu/udaappdir/migrations/*.js
-    TYPEORM_ENTITIES: /home/ubuntu/udaappdir/modules/domain/**/*.entity.js
-    TYPEORM_HOST: "{{ lookup('env','TYPEORM_HOST') }}"
-    TYPEORM_PORT: "{{ lookup('env','TYPEORM_PORT') }}"
-    TYPEORM_USERNAME: "{{ lookup('env','TYPEORM_USERNAME') }}"
-    TYPEORM_PASSWORD: "{{ lookup('env','TYPEORM_PASSWORD') }}"
-    TYPEORM_DATABASE: "{{ lookup('env','TYPEORM_DATABASE') }}"
+    pm2 start npm -- start

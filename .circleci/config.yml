@@ -300,7 +300,7 @@ jobs:
                       echo TYPEORM_PASSWORD: "{{ lookup('env', 'TYPEORM_PASSWORD') }}"
                       echo TYPEORM_DATABASE: "{{ lookup('env', 'TYPEORM_DATABASE') }}"
                       cd backend
-                      npm i
+                      npm install 
                       npm audit fix
                       npm run build 
                       cd ..

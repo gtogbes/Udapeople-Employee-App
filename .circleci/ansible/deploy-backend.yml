@@ -25,5 +25,15 @@
     TYPEORM_PASSWORD: "{{ lookup('env', 'TYPEORM_PASSWORD') }}"
     TYPEORM_DATABASE: "{{ lookup('env', 'TYPEORM_DATABASE') }}"
 
+  pre_tasks:
+    - name: "wait 650 seconds for target connection to be open"
+      wait_for_connection:
+        timeout: 650
+  
+    - name: "Install python for Ansible."
+      become: true
+      raw: test -e /usr/bin/python3 || (apt -y update && apt install -y python)
+      changed_when: false
+
   roles:
     - deploy
