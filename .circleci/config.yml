@@ -392,11 +392,15 @@ jobs:
 
     cleanup:
         docker:
-            - image: cimg/base:stable
+            - image: python:3.7-alpine
         steps:
             - checkout
-            - install_awscli
-            - install_nodejs
+            - run:
+                name: Install dependencies
+                command: |
+                    apk add --update curl bash
+                    pip install awscli
+                    pip install nodejs 
 
             - run:
                   name: Remove old stacks and files
@@ -405,6 +409,7 @@ jobs:
                         --query "StackSummaries[*].StackName" \
                         --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
                       echo Stack names: "${STACKS[@]}"
+                      
                       export OldWorkflowID=$(curl --insecure https://kvdb.io/BCkQQGfj9UgTpMpTV3sTdY/OLD_WORKFLOW_ID)
                       echo Old Workflow ID: $OldWorkflowID 
 
