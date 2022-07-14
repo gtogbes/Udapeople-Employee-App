@@ -207,7 +207,7 @@ jobs:
 
     run-migrations:
         docker:
-            - image: python:3.7-alpine
+            - image: circleci/node:13.8.0
         steps:
             - checkout
             - restore_cache:
@@ -215,8 +215,10 @@ jobs:
             - run:
                   name: Install dependencies
                   command: |
-                      apk add --update tar gzip curl nodejs npm zip
-                      pip install awscli
+                      curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+                      unzip awscliv2.zip
+                      sudo ./aws/install
+                      echo aws --version
             - run:
                   name: Run migrations
                   command: |
@@ -387,7 +389,7 @@ jobs:
                        aws cloudformation deploy \
                             --template-file .circleci/files/cloudfront.yml \
                             --stack-name InitialStack \
-                            --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:7}" \
+                            --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
                             --tags project=udapeople
                 
             - destroy-environment:
