@@ -404,6 +404,7 @@ jobs:
 
             - run:
                   name: Remove old stacks and files
+                  shell: /bin/bash
                   command: |
                       export STACKS=$(aws cloudformation list-stacks \
                         --query "StackSummaries[*].StackName" \
