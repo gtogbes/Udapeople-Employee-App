@@ -210,6 +210,8 @@ jobs:
             - image: python:3.7-alpine
         steps:
             - checkout
+            - restore_cache:
+                keys: [backend-build]
             - run:
                   name: Install dependencies
                   command: |
@@ -227,7 +229,10 @@ jobs:
                   command: |   
                       if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
                       then
-                          curl https://kvdb.io/BCkQQGfj9UgTpMpTV3sTdY/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+                          curl --insecure https://kvdb.io/BCkQQGfj9UgTpMpTV3sTdY/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+                          echo "migration complete -------"
+                      else 
+                          echo "no migration happened"
                         
                       fi
             - destroy-environment:
