@@ -1,0 +1,3 @@
+URL01:  https://github.com/gtogbes/Udapeople-App-AutoDeploy-Puperpower
+
+URL01:  http://udapeople-5ac9209.s3-website-us-east-1.amazonaws.com
