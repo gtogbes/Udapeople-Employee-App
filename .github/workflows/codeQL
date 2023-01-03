@@ -21,7 +21,7 @@ on:
     - cron: '20 12 * * 0'
 
 jobs:
-  analyze:
+  analyze-code:
     name: Analyze
     runs-on: ubuntu-latest
 
